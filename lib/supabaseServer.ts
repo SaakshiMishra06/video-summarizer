@@ -3,9 +3,11 @@ import { cookies } from 'next/headers';
 
 // Server-side Supabase instance (utilizes Next.js App Router async cookies)
 export const getSupabaseServerClient = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder-url.supabase.co';
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    key,
     {
       cookies: {
         async getAll() {
@@ -29,9 +31,11 @@ export const getSupabaseServerClient = () => {
 
 // Admin Server-side Supabase instance (bypasses Row-Level Security for backend overrides)
 export const getSupabaseAdminClient = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder-url.supabase.co';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    url,
+    serviceRoleKey,
     {
       cookies: {
         getAll() {
