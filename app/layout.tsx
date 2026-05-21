@@ -19,7 +19,11 @@ export const metadata: Metadata = {
   description: 'Convert any MP4 video or YouTube link into concise summaries, engaging articles, LinkedIn posts, Twitter threads, and timestamped chapters instantly using state-of-the-art AI.',
   keywords: ['AI Video Summarizer', 'YouTube transcription', 'Whisper speech to text', 'Gemini AI summaries', 'SaaS productivity', 'Content creation tools'],
   authors: [{ name: 'VidBrief AI Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
