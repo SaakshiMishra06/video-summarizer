@@ -8,6 +8,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import TranscriptViewer from '@/components/TranscriptViewer';
 import SummaryTab from '@/components/SummaryTab';
 import AIChatbox from '@/components/AIChatbox';
+import StudyTab from '@/components/StudyTab';
 import { SummaryPageSkeleton } from '@/components/ui/Skeleton';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -20,7 +21,8 @@ import {
   ExternalLink,
   MessageSquare,
   FileText,
-  AlertCircle
+  AlertCircle,
+  GraduationCap
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { Video, Transcript, VideoSummary } from '@/types';
@@ -39,7 +41,7 @@ export default function VideoDetailPage() {
   const [errorMsg, setErrorMsg] = useState('');
   
   // Right side panel toggle: 'transcript' or 'chat'
-  const [rightPanelTab, setRightPanelTab] = useState<'transcript' | 'chat'>('transcript');
+  const [rightPanelTab, setRightPanelTab] = useState<'transcript' | 'chat' | 'study'>('transcript');
   
   // HTML5 Video Ref
   const videoPlayerRef = useRef<HTMLVideoElement>(null);
@@ -291,25 +293,36 @@ export default function VideoDetailPage() {
             <div className="flex border border-white/5 bg-slate-900/40 p-0.5 rounded-xl">
               <button
                 onClick={() => setRightPanelTab('transcript')}
-                className={`flex-1 py-2.5 text-xs font-semibold font-outfit rounded-lg tracking-wider uppercase cursor-pointer transition flex items-center justify-center space-x-2 ${
+                className={`flex-1 py-2 text-xs font-semibold font-outfit rounded-lg tracking-wider uppercase cursor-pointer transition flex items-center justify-center space-x-1.5 ${
                   rightPanelTab === 'transcript'
                     ? 'bg-slate-950 border border-white/5 text-violet-400 shadow-sm'
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
-                <FileText className="h-4 w-4" />
+                <FileText className="h-3.5 w-3.5" />
                 <span>Transcript</span>
               </button>
               <button
+                onClick={() => setRightPanelTab('study')}
+                className={`flex-1 py-2 text-xs font-semibold font-outfit rounded-lg tracking-wider uppercase cursor-pointer transition flex items-center justify-center space-x-1.5 ${
+                  rightPanelTab === 'study'
+                    ? 'bg-slate-950 border border-white/5 text-emerald-400 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                <span>Study</span>
+              </button>
+              <button
                 onClick={() => setRightPanelTab('chat')}
-                className={`flex-1 py-2.5 text-xs font-semibold font-outfit rounded-lg tracking-wider uppercase cursor-pointer transition flex items-center justify-center space-x-2 ${
+                className={`flex-1 py-2 text-xs font-semibold font-outfit rounded-lg tracking-wider uppercase cursor-pointer transition flex items-center justify-center space-x-1.5 ${
                   rightPanelTab === 'chat'
                     ? 'bg-slate-950 border border-white/5 text-fuchsia-400 shadow-sm'
                     : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
-                <MessageSquare className="h-4 w-4" />
-                <span>AI Assistant</span>
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span>AI Chat</span>
               </button>
             </div>
 
@@ -325,6 +338,8 @@ export default function VideoDetailPage() {
                   Transcript could not be loaded.
                 </Card>
               )
+            ) : rightPanelTab === 'study' ? (
+              <StudyTab videoId={video.id} />
             ) : (
               <AIChatbox videoId={video.id} />
             )}

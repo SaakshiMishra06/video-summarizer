@@ -76,3 +76,38 @@ export interface ChatMessage {
   content: string;
   timestamp: string;
 }
+
+// Study Mode types
+export interface Flashcard {
+  question: string;
+  answer: string;
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswerIndex: number;
+  explanation: string;
+}
+
+export interface RevisionSection {
+  title: string;
+  content: string;
+  bullets: string[];
+}
+
+export interface RevisionNotes {
+  overview: string;
+  sections: RevisionSection[];
+  keyTerms: { term: string; definition: string }[];
+}
+
+export interface StudyMaterial {
+  id: string;
+  video_id: string;
+  flashcards: Flashcard[];
+  quiz: QuizQuestion[];
+  revision_notes: RevisionNotes;
+  created_at: string;
+}
+

@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { VideoSummary, ChatMessage } from '../types';
+import { VideoSummary, ChatMessage, StudyMaterial } from '../types';
 
 // Initialize the Google GenAI SDK
 const getAI = () => {
@@ -120,5 +120,90 @@ ${transcript}
   } catch (error) {
     console.error('Error in Gemini Chat:', error);
     throw new Error(`Gemini chat failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+/**
+ * Generates student-friendly study materials (flashcards, MCQs, revision notes)
+ * from a video transcript using Gemini 2.5 Flash.
+ */
+export async function generateStudyMaterials(
+  transcript: string,
+  videoTitle: string
+): Promise<Omit<StudyMaterial, 'id' | 'video_id' | 'created_at'>> {
+  const ai = getAI();
+
+  const prompt = `
+You are an expert educational content creator and teacher. Based on the following video transcript titled "${videoTitle}", generate comprehensive study materials for students.
+
+TRANSCRIPT:
+"""
+${transcript}
+"""
+
+Generate a JSON object with EXACTLY this structure:
+{
+  "flashcards": [
+    { "question": "...", "answer": "..." }
+    // Generate 8 to 12 flashcards covering key concepts
+  ],
+  "quiz": [
+    {
+      "question": "...",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswerIndex": 0,
+      "explanation": "Why this is correct and why others are wrong"
+    }
+    // Generate 6 to 8 MCQ questions of varying difficulty
+  ],
+  "revision_notes": {
+    "overview": "A 3-4 sentence high-level overview of the entire topic for quick revision.",
+    "sections": [
+      {
+        "title": "Section title",
+        "content": "A detailed paragraph explaining this section.",
+        "bullets": ["Key point 1", "Key point 2", "Key point 3"]
+      }
+      // Generate 3-5 logical sections based on the video content
+    ],
+    "keyTerms": [
+      { "term": "Term name", "definition": "Clear, simple definition of this term" }
+      // Generate 5-8 important key terms with definitions
+    ]
+  }
+}
+
+IMPORTANT:
+- correctAnswerIndex is zero-based (0 = first option, 1 = second option, etc.)
+- Make flashcards concise: questions should be short and answers should be 1-2 sentences
+- Make MCQs challenging but fair — include plausible distractors
+- Revision notes should be thorough and suitable for exam preparation
+- Respond with VALID JSON ONLY. No markdown, no code blocks, no extra text.
+`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        temperature: 0.3,
+      },
+    });
+
+    const responseText = response.text?.trim();
+    if (!responseText) {
+      throw new Error('Received empty response from Gemini API');
+    }
+
+    const parsed = JSON.parse(responseText);
+    return {
+      flashcards: parsed.flashcards || [],
+      quiz: parsed.quiz || [],
+      revision_notes: parsed.revision_notes || { overview: '', sections: [], keyTerms: [] },
+    };
+  } catch (error) {
+    console.error('Error generating study materials from Gemini:', error);
+    throw new Error(`Study material generation failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

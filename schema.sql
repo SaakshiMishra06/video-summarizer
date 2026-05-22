@@ -135,3 +135,26 @@ create policy "Users can view processing_status of their own videos" on public.p
       where videos.id = processing_status.video_id and videos.user_id = auth.uid()
     )
   );
+
+-- 6. Study Materials Table
+-- Stores AI-generated study guides, flashcards, and quizzes
+create table if not exists public.study_materials (
+  id uuid default gen_random_uuid() primary key,
+  video_id uuid references public.videos(id) on delete cascade not null unique,
+  flashcards jsonb, -- Array of object: { question: string, answer: string }
+  quiz jsonb, -- Array of object: { question: string, options: string[], correctAnswerIndex: number, explanation: string }
+  revision_notes jsonb, -- Object containing sections, key terms, and summary
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS
+alter table public.study_materials enable row level security;
+
+-- Create policies for Study Materials
+create policy "Users can perform actions on study_materials of their own videos" on public.study_materials
+  for all using (
+    exists (
+      select 1 from public.videos 
+      where videos.id = study_materials.video_id and videos.user_id = auth.uid()
+    )
+  );
